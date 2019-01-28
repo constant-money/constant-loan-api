@@ -4,6 +4,7 @@ LOAN_APPLICATION_STATUS = Choices(
     ('pending', 'Pending'),
     ('processing', 'Processing'),
     ('approved', 'Approved'),
+    ('rejected', 'Rejected'),
 )
 
 LOAN_STATUS = Choices(
@@ -24,4 +25,9 @@ FIELD_TYPE = Choices(
     ('text', 'Text'),
     ('image', 'Image'),
     ('file', 'File'),
+)
+
+LOAN_MEMBER_APPLICATION_STATUS = Choices(
+    ('connecting', 'Connecting'),
+    ('connected', 'Connected'),
 )

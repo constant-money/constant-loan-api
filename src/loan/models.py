@@ -1,7 +1,13 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from loan.constants import LOAN_APPLICATION_STATUS, LOAN_TERM_STATUS, LOAN_STATUS, FIELD_TYPE
+from loan.constants import (
+    LOAN_APPLICATION_STATUS,
+    LOAN_TERM_STATUS,
+    LOAN_STATUS,
+    FIELD_TYPE,
+    LOAN_MEMBER_APPLICATION_STATUS
+)
 
 
 class TimestampedModel(models.Model):
@@ -17,6 +23,7 @@ class ConstUser(User):
         managed = False
 
     user_id = models.IntegerField()
+    role_id = models.IntegerField()
     dob = models.CharField(max_length=50)
     verified_level = models.IntegerField(default=0)
     constant_balance = models.DecimalField(max_digits=12, decimal_places=2)
@@ -36,20 +43,25 @@ class LoanProgram(models.Model):
     active = models.BooleanField(default=True)
     rate = models.DecimalField(max_digits=8, decimal_places=2)
     cycle = models.IntegerField()
+    min_term = models.IntegerField(default=6)
+    max_term = models.IntegerField(default=6)
 
     def __str__(self):
         return '{}'.format(self.name)
 
 
-class LoanMember(models.Model):
+class LoanMember(TimestampedModel):
     class Meta:
         verbose_name = 'Loan Member'
         verbose_name_plural = 'Loan Members'
 
-    user_id = models.IntegerField()
     user_email = models.CharField(max_length=255)
-    user_external_email = models.CharField(max_length=255, null=True)
+    user_id = models.IntegerField(null=True, blank=True)
+    user_phone = models.CharField(max_length=20, null=True, blank=True)
+    user_external_email = models.CharField(max_length=255, null=True, blank=True)
     credit = models.IntegerField(default=0)
+    phone_verification_code = models.CharField(max_length=10, blank=True)
+    phone_retry = models.IntegerField(default=10)
 
 
 class LoanApplication(TimestampedModel):
@@ -57,10 +69,11 @@ class LoanApplication(TimestampedModel):
         verbose_name = 'Loan Application'
         verbose_name_plural = 'Loan Applications'
 
-    program = models.ForeignKey(LoanProgram, related_name='loan_applications', on_delete=models.SET_NULL, null=True, blank=True)
+    program = models.ForeignKey(LoanProgram, related_name='loan_applications', on_delete=models.SET_NULL,
+                                null=True, blank=True)
     loan_amount = models.DecimalField(max_digits=12, decimal_places=2)
     member_required = models.IntegerField(help_text='How many members required to apply to this loan')
-    member_allowed = models.IntegerField(help_text='How many members allowed to loan')
+    member_allowed = models.IntegerField(help_text='How many members allowed to loan per cycle')
     rate = models.DecimalField(max_digits=8, decimal_places=2, help_text='Loan rate')
     cycle = models.IntegerField(help_text='How many days need to pay the loan. For example 7 days')
     term = models.IntegerField(help_text='How many cycle need to pay the loan. For example 12 cycles')
@@ -74,7 +87,9 @@ class LoanMemberApplication(models.Model):
 
     application = models.ForeignKey(LoanApplication, related_name='loan_member_applications', on_delete=models.PROTECT)
     member = models.ForeignKey(LoanMember, related_name='loan_member_members', on_delete=models.PROTECT)
-    active = models.BooleanField(default=True)
+    main = models.BooleanField(null=True, blank=True)
+    status = models.CharField(max_length=50, choices=LOAN_MEMBER_APPLICATION_STATUS, null=True)
+    active = models.BooleanField(default=False)
 
 
 class LoanMemberApplicationDataField(models.Model):

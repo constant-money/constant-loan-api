@@ -7,5 +7,4 @@ class SampleAuthView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, format=None):
-        print(request.user.email)
         return Response()

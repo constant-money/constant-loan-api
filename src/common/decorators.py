@@ -1,7 +1,6 @@
 import functools
 import logging
 
-from django.core.cache import cache
 from rest_framework.exceptions import APIException
 
 

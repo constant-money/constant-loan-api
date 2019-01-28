@@ -22,3 +22,9 @@ class Client(object):
 
 
 client = Client(settings.CONST_API['URL'])
+
+
+class ConstantManagement(object):
+    @staticmethod
+    def get_profile(token):
+        return client.get_profile(token)
