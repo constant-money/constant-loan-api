@@ -44,7 +44,7 @@ class LoanProgram(models.Model):
     rate = models.DecimalField(max_digits=8, decimal_places=2)
     cycle = models.IntegerField()
     min_term = models.IntegerField(default=6)
-    max_term = models.IntegerField(default=6)
+    max_term = models.IntegerField(default=12)
 
     def __str__(self):
         return '{}'.format(self.name)
@@ -80,6 +80,7 @@ class LoanApplication(TimestampedModel):
     term = models.IntegerField(help_text='How many cycle need to pay the loan. For example 12 cycles')
     status = models.CharField(max_length=50, choices=LOAN_APPLICATION_STATUS, default=LOAN_APPLICATION_STATUS.created)
     members = models.ManyToManyField(LoanMember, through='LoanMemberApplication', related_name='applications_of_member')
+    note = models.TextField(null=True, blank=True)
 
 
 class LoanMemberApplication(models.Model):

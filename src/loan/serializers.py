@@ -12,13 +12,14 @@ class LoanMemberSerializer(serializers.ModelSerializer):
 class LoanMemberApplicationDataFieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoanMemberApplicationDataField
-        fields = '__all__'
+        exclude = ('loan_applicant', )
 
 
 class LoanMemberApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoanMemberApplication
         fields = '__all__'
+        read_only_fields = ('application',)
 
     member = LoanMemberSerializer()
     data_fields = LoanMemberApplicationDataFieldSerializer(source='applicant_data_fields',
@@ -29,5 +30,6 @@ class LoanApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoanApplication
         fields = '__all__'
+        read_only_fields = ('rate', 'member_required', 'member_allowed', 'cycle', 'note')
 
     members = LoanMemberApplicationSerializer(source='loan_member_applications', many=True, read_only=True)

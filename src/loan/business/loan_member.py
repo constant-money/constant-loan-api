@@ -18,13 +18,12 @@ class LoanMemberBusiness(LoanMember):
         return self.phone_retry == -999
 
     def verify_phone(self, code):
-        if code == self.phone_verification_code:
-            self.phone_retry = -999
-            self.save()
+        if code != self.phone_verification_code:
+            raise InvalidVerificationException
+        self.phone_retry = -999
+        self.save()
 
-        raise InvalidVerificationException
-
-    def send_phone_verification_code(self, language=LANGUAGE.en):
+    def send_phone_verification_code(self, phone, language=LANGUAGE.en):
         if self.is_phone_verified():
             raise AlreadyVerifiedException
         if self.phone_retry == 0:
@@ -35,6 +34,7 @@ class LoanMemberBusiness(LoanMember):
                                           language,
                                           {'code': self.phone_verification_code})
 
+        self.user_phone = phone
         self.phone_verification_code = generate_random_digit(6)
         self.phone_retry = F('phone_retry') - 1
         self.save()

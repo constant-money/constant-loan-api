@@ -43,7 +43,7 @@ class ListPlanApplicationTests(APITestCase):
         LoanMemberApplicationDataFieldFactory(loan_applicant=mem_app, field_type=FIELD_TYPE.file)
 
         response = self.client.get(url, format='json')
-        print(response.json())
+        # print(response.json())
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

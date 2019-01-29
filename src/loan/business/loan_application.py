@@ -11,6 +11,7 @@ class LoanApplicationBusiness(LoanApplication):
         self.status = LOAN_APPLICATION_STATUS.approved
         self.save()
 
-    def reject(self):
+    def reject(self, note=''):
         self.status = LOAN_APPLICATION_STATUS.rejected
+        self.note = note
         self.save()

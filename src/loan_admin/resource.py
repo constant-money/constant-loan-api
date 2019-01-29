@@ -37,6 +37,6 @@ class LoanApplicationViewSet(mixins.RetrieveModelMixin,
         loan_application = LoanApplicationBusiness.objects.get(pk=pk)
         serializer = LoanApplicationSerializer(loan_application, data={}, partial=True)
         serializer.is_valid(True)
-        loan_application.reject()
+        loan_application.reject(note=request.data.get('note', ''))
 
         return Response(serializer.data)
