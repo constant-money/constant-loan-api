@@ -59,6 +59,8 @@ LOCAL_APPS = [
     'loan',
     'loan_admin',
     'loan_auth',
+    'content',
+    'notification'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

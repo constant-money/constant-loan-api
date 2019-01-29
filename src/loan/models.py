@@ -55,6 +55,7 @@ class LoanMember(TimestampedModel):
         verbose_name = 'Loan Member'
         verbose_name_plural = 'Loan Members'
 
+    user_name = models.CharField(max_length=255)
     user_email = models.CharField(max_length=255)
     user_id = models.IntegerField(null=True, blank=True)
     user_phone = models.CharField(max_length=20, null=True, blank=True)
@@ -77,13 +78,15 @@ class LoanApplication(TimestampedModel):
     rate = models.DecimalField(max_digits=8, decimal_places=2, help_text='Loan rate')
     cycle = models.IntegerField(help_text='How many days need to pay the loan. For example 7 days')
     term = models.IntegerField(help_text='How many cycle need to pay the loan. For example 12 cycles')
-    status = models.CharField(max_length=50, choices=LOAN_APPLICATION_STATUS, default=LOAN_APPLICATION_STATUS.pending)
+    status = models.CharField(max_length=50, choices=LOAN_APPLICATION_STATUS, default=LOAN_APPLICATION_STATUS.created)
+    members = models.ManyToManyField(LoanMember, through='LoanMemberApplication', related_name='applications_of_member')
 
 
 class LoanMemberApplication(models.Model):
     class Meta:
         verbose_name = 'Loan Member In Application'
         verbose_name_plural = 'Loan Members In Applications'
+        unique_together = ('application', 'member')
 
     application = models.ForeignKey(LoanApplication, related_name='loan_member_applications', on_delete=models.PROTECT)
     member = models.ForeignKey(LoanMember, related_name='loan_member_members', on_delete=models.PROTECT)

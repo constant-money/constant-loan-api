@@ -1,6 +1,7 @@
 from model_utils import Choices
 
 LOAN_APPLICATION_STATUS = Choices(
+    ('created', 'Created'),
     ('pending', 'Pending'),
     ('processing', 'Processing'),
     ('approved', 'Approved'),
