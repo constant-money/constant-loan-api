@@ -8,26 +8,26 @@ from loan.factories import LoanApplicationFactory, LoanMemberFactory, LoanMember
     LoanMemberApplicationDataFieldFactory
 
 
-class ListPlanApplicationTests(APITestCase):
+class ListLoanApplicationTests(APITestCase):
     def setUp(self):
         self.auth_utils = AuthenticationUtils(self.client)
         self.auth_utils.admin_login()
 
-        LoanApplicationFactory.create_batch(10)
+        LoanApplicationFactory.create_batch(20)
 
     def test_list(self):
         url = reverse('loan-admin:loanapplication-list')
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()['results']), 10)
+        self.assertEqual(len(response.json()['results']), 20)
 
     def test_filter_1(self):
         url = reverse('loan-admin:loanapplication-list')
         response = self.client.get(url, data={'status': LOAN_APPLICATION_STATUS.pending}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()['results']), 2)
+        self.assertLess(len(response.json()['results']), 20)
 
     def test_full_detail(self):
         url = reverse('loan-admin:loanapplication-list')
@@ -48,7 +48,7 @@ class ListPlanApplicationTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class PlanApplicationActionTests(APITestCase):
+class LoanApplicationActionTests(APITestCase):
     def setUp(self):
         self.auth_utils = AuthenticationUtils(self.client)
         self.auth_utils.admin_login()

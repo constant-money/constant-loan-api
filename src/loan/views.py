@@ -5,11 +5,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from loan.business.loan_application import LoanApplicationBusiness
 from loan.business.loan_member import LoanMemberBusiness
 from loan.constants import LOAN_MEMBER_APPLICATION_STATUS
 from loan.models import LoanProgram, LoanMember
 from loan.serializers import LoanApplicationSerializer, LoanMemberApplicationSerializer, \
     LoanMemberApplicationDataFieldSerializer, LoanMemberSerializer
+from notification.constants import LANGUAGE
 
 
 class SampleAuthView(APIView):
@@ -48,7 +50,7 @@ class PhoneVerificationView(APIView):
         if not user_phone:
             raise ValidationError
 
-        member.send_phone_verification_code(user_phone, request.data.get('language'))
+        member.send_phone_verification_code(user_phone, request.data.get('language', LANGUAGE.en))
 
         return Response(
             True
@@ -67,7 +69,10 @@ class LoanApplicationView(APIView):
         loan_app_serializer = LoanApplicationSerializer(data=request.data)
         loan_app_serializer.is_valid(True)
 
+        if not request.data.get('main_member'):
+            raise ValidationError
         if not request.data.get('members'):
+            print('Go here 2')
             raise ValidationError
 
         loan_member_app_serializers = self._extract_data_to_serializers(request)
@@ -78,6 +83,7 @@ class LoanApplicationView(APIView):
     @staticmethod
     def _extract_data_to_serializers(request):
         loan_app_members = request.data['members']
+        loan_app_members.append(request.data['main_member'])
         loan_member_app_serializers = []
         for loan_app_member in loan_app_members:
             data = {
@@ -135,9 +141,23 @@ class LoanApplicationView(APIView):
                 application=loan_app,
                 member=loan_member,
                 main=main,
-                status=LOAN_MEMBER_APPLICATION_STATUS.connecting,
+                status=LOAN_MEMBER_APPLICATION_STATUS.connecting if main else None,
             )
             main = False
 
             for data_field_serializer in loan_member_app_item['data_fields']:
                 data_field_serializer.save(loan_applicant=loan_member_app)
+
+        loan_application = LoanApplicationBusiness.objects.get(id=loan_app.id)
+        loan_application.send_connect_email(request.query_params.get('language', LANGUAGE.en))
+
+
+class LoanConnectView(APIView):
+    def get(self, request, format=None):
+        code = request.query_params.get('code')
+        if not code:
+            raise ValidationError
+
+        LoanApplicationBusiness.connect(code)
+
+        return Response()

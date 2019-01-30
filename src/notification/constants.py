@@ -1,7 +1,7 @@
 from model_utils import Choices
 
 EMAIL_PURPOSE = Choices(
-    ('email_verification', 'Email verification'),
+    ('email_connection', 'Email connection'),
 )
 
 SMS_PURPOSE = Choices(

@@ -6,8 +6,8 @@ from loan.constants import (
     LOAN_TERM_STATUS,
     LOAN_STATUS,
     FIELD_TYPE,
-    LOAN_MEMBER_APPLICATION_STATUS
-)
+    LOAN_MEMBER_APPLICATION_STATUS,
+    LOAN_TERM_NOTIFICATION_STATUS)
 
 
 class TimestampedModel(models.Model):
@@ -150,7 +150,14 @@ class LoanTerm(TimestampedModel):
     interest_amount = models.DecimalField(max_digits=12, decimal_places=2)
     total_amount = models.DecimalField(max_digits=12, decimal_places=2)
     pay_date = models.DateTimeField(help_text='The date member should pay the loan')
-    paid_date = models.DateTimeField(help_text='The date member paid the loan')
+    paid_date = models.DateTimeField(help_text='The date member paid the loan', null=True)
     paid_status = models.CharField(max_length=50, choices=LOAN_TERM_STATUS, null=True)
     paid = models.BooleanField(default=False)
-    payment = models.ForeignKey(LoanPayment, related_name='loan_payment_terms', on_delete=models.PROTECT)
+    payment = models.ForeignKey(LoanPayment, related_name='loan_payment_terms', null=True, on_delete=models.PROTECT)
+
+
+class LoanTermNotification(TimestampedModel):
+    loan_term = models.ForeignKey(LoanTerm, related_name='loan_term_notifications', on_delete=models.CASCADE)
+    notification_status = models.CharField(max_length=50, choices=LOAN_TERM_NOTIFICATION_STATUS,
+                                           default=LOAN_TERM_NOTIFICATION_STATUS.not_yet)
+    notification_note = models.TextField(null=True, blank=True)

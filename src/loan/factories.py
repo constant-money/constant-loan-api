@@ -2,7 +2,8 @@ from decimal import Decimal
 
 import factory
 
-from loan.constants import LOAN_APPLICATION_STATUS
+from common.business import get_now
+from loan.constants import LOAN_APPLICATION_STATUS, LOAN_TERM_STATUS
 
 
 class LoanProgramFactory(factory.django.DjangoModelFactory):
@@ -21,6 +22,8 @@ class LoanProgramFactory(factory.django.DjangoModelFactory):
 class LoanMemberFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'loan.LoanMember'
+
+    user_id = factory.Sequence(lambda n: n)
 
 
 class LoanApplicationFactory(factory.django.DjangoModelFactory):
@@ -72,6 +75,11 @@ class LoanTermFactory(factory.django.DjangoModelFactory):
         model = 'loan.LoanTerm'
 
     loan_applicant = factory.SubFactory(LoanMemberApplicationFactory)
+    original_amount = Decimal('10')
+    interest_amount = Decimal('0.15')
+    total_amount = Decimal('10.15')
+    pay_date = get_now()
+    paid_status = factory.Iterator([item[0] for item in LOAN_TERM_STATUS])
 
 
 class LoanPaymentFactory(factory.django.DjangoModelFactory):
@@ -79,3 +87,10 @@ class LoanPaymentFactory(factory.django.DjangoModelFactory):
         model = 'loan.LoanPayment'
 
     loan_applicant = factory.SubFactory(LoanMemberApplicationFactory)
+
+
+class LoanTermNotificationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = 'loan.LoanTermNotification'
+
+    loan_term = factory.SubFactory(LoanTermFactory)

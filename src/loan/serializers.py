@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
-from loan.models import LoanApplication, LoanMemberApplication, LoanMember, LoanMemberApplicationDataField
+from common.business import get_now
+from loan.models import LoanApplication, LoanMemberApplication, LoanMember, LoanMemberApplicationDataField, LoanTerm, \
+    LoanTermNotification
 
 
 class LoanMemberSerializer(serializers.ModelSerializer):
@@ -32,4 +34,62 @@ class LoanApplicationSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('rate', 'member_required', 'member_allowed', 'cycle', 'note')
 
-    members = LoanMemberApplicationSerializer(source='loan_member_applications', many=True, read_only=True)
+    main_member = serializers.SerializerMethodField(read_only=True)
+
+    def get_main_member(self, instance):
+        member_app = LoanMemberApplication.objects.filter(application=instance,
+                                                          main=False).first()
+
+        return LoanMemberApplicationSerializer(member_app).data
+
+    members = serializers.SerializerMethodField(read_only=True)
+
+    def get_members(self, instance):
+        member_apps = LoanMemberApplication.objects.filter(application=instance,
+                                                           main=False)
+
+        return [LoanMemberApplicationSerializer(member_app).data for member_app in member_apps]
+
+
+class LoanTermSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoanTerm
+        fields = '__all__'
+
+    due_days = serializers.SerializerMethodField(source='get_due_days', read_only=True)
+
+    def get_due_days(self, instance):
+        return (get_now() - instance.pay_date).days
+
+
+class LoanTermNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoanTermNotification
+        fields = '__all__'
+
+
+class LoanTermAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoanTerm
+        fields = '__all__'
+
+    main_member = LoanMemberSerializer(source='loan_applicant.member', read_only=True)
+    members = serializers.SerializerMethodField(read_only=True)
+    due_days = serializers.SerializerMethodField(source='get_due_days', read_only=True)
+    notification = serializers.SerializerMethodField(source='get_notification', read_only=True)
+
+    def get_due_days(self, instance):
+        return (get_now() - instance.pay_date).days
+
+    def get_members(self, instance):
+        members = LoanMember.objects.filter(loan_member_members__application=instance.loan_applicant.application,
+                                            loan_member_members__main=False)
+
+        return [LoanMemberSerializer(member).data for member in members]
+
+    def get_notification(self, instance):
+        obj = LoanTermNotification.objects.filter(loan_term=instance).order_by('id').last()
+        if obj:
+            return LoanTermNotificationSerializer(obj).data
+
+        return None

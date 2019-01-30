@@ -18,3 +18,15 @@ class ExceedLimitException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Exceed limit'
     default_code = 'exceed_limit'
+
+
+class AlreadyPaidException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Already paid'
+    default_code = 'already_paid'
+
+
+class InvalidStatusException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Invalid status'
+    default_code = 'invalid_status'

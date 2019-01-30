@@ -6,6 +6,7 @@ LOAN_APPLICATION_STATUS = Choices(
     ('processing', 'Processing'),
     ('approved', 'Approved'),
     ('rejected', 'Rejected'),
+    ('cancelled', 'Cancelled'),
 )
 
 LOAN_STATUS = Choices(
@@ -31,4 +32,10 @@ FIELD_TYPE = Choices(
 LOAN_MEMBER_APPLICATION_STATUS = Choices(
     ('connecting', 'Connecting'),
     ('connected', 'Connected'),
+)
+
+LOAN_TERM_NOTIFICATION_STATUS = Choices(
+    ('not_yet', 'Not Yet'),
+    ('called', 'Called'),
+    ('email_sent', 'Email Sent'),
 )
