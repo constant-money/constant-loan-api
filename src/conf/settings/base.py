@@ -221,3 +221,17 @@ SENDGRID = {
 CONST_API = {
     'URL': 'http://35.201.103.30/api'
 }
+
+
+DEBUG = True
+
+ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'localhost', '35.244.181.30', '10.138.0.*']
+
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+sentry_sdk.init(
+    dsn="https://5ab108a056864934a131f39b063a8ce6@sentry.io/1383631",
+    integrations=[DjangoIntegration(), sentry_logging],
+    send_default_pii=True,
+    environment='staging'
+)
