@@ -86,7 +86,7 @@ class LoanApplication(TimestampedModel):
     note = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return '{}'.format(self.program) if not self.members else self.members.first().user_email
+        return '{} - {}'.format(self.id, self.program if not self.members else self.members.first().user_email)
 
 
 class LoanMemberApplication(models.Model):
