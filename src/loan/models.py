@@ -159,10 +159,11 @@ class LoanTerm(TimestampedModel):
     interest_amount = models.DecimalField(max_digits=12, decimal_places=2)
     total_amount = models.DecimalField(max_digits=12, decimal_places=2)
     pay_date = models.DateTimeField(help_text='The date member should pay the loan')
-    paid_date = models.DateTimeField(help_text='The date member paid the loan', null=True)
-    paid_status = models.CharField(max_length=50, choices=LOAN_TERM_STATUS, null=True)
+    paid_date = models.DateTimeField(help_text='The date member paid the loan', null=True, blank=True)
+    paid_status = models.CharField(max_length=50, choices=LOAN_TERM_STATUS, null=True, blank=True)
     paid = models.BooleanField(default=False)
-    payment = models.ForeignKey(LoanPayment, related_name='loan_payment_terms', null=True, on_delete=models.PROTECT)
+    payment = models.ForeignKey(LoanPayment, related_name='loan_payment_terms', null=True, blank=True,
+                                on_delete=models.PROTECT)
 
 
 class LoanTermNotification(TimestampedModel):
