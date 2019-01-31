@@ -24,7 +24,7 @@ class LoanApplicationViewSet(mixins.RetrieveModelMixin,
         'status',
     )
 
-    @action(detail=True, methods=['patch'])
+    @action(detail=True, methods=['put'])
     def approve(self, request, pk=None):
         loan_application = LoanApplicationBusiness.objects.get(pk=pk)
         serializer = LoanApplicationSerializer(loan_application, data={}, partial=True)
@@ -33,7 +33,7 @@ class LoanApplicationViewSet(mixins.RetrieveModelMixin,
 
         return Response(serializer.data)
 
-    @action(detail=True, methods=['patch'])
+    @action(detail=True, methods=['put'])
     def reject(self, request, pk=None):
         loan_application = LoanApplicationBusiness.objects.get(pk=pk)
         serializer = LoanApplicationSerializer(loan_application, data={}, partial=True)
