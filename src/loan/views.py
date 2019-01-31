@@ -8,7 +8,8 @@ from rest_framework.views import APIView
 from loan.business.loan_application import LoanApplicationBusiness
 from loan.business.loan_member import LoanMemberBusiness
 from loan.constants import LOAN_MEMBER_APPLICATION_STATUS
-from loan.models import LoanProgram, LoanMember
+from loan.exceptions import AlreadyInAnotherApplicationException
+from loan.models import LoanProgram, LoanMember, LoanMemberApplication
 from loan.serializers import LoanApplicationSerializer, LoanMemberApplicationSerializer, \
     LoanMemberApplicationDataFieldSerializer, LoanMemberSerializer
 from notification.constants import LANGUAGE
@@ -65,7 +66,6 @@ class PhoneVerificationView(APIView):
 class LoanApplicationView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    @transaction.atomic
     def post(self, request, format=None):
         member = LoanMemberBusiness.objects.filter(user_email=request.user.email).first()
         if not member.is_phone_verified():
@@ -86,6 +86,7 @@ class LoanApplicationView(APIView):
         return Response(loan_app_serializer.data, status.HTTP_201_CREATED)
 
     @staticmethod
+    @transaction.atomic
     def _extract_data_to_serializers(request):
         loan_app_members = request.data['members']
         loan_app_members.append(request.data['main_member'])
@@ -100,8 +101,9 @@ class LoanApplicationView(APIView):
             loan_member_data = loan_app_member.get('member')
             if not loan_member_data:
                 raise ValidationError
-            loan_member = LoanMember.objects.filter(user_email=loan_member_data.get('user_email')).first()
+            loan_member = LoanMemberBusiness.objects.filter(user_email=loan_member_data.get('user_email')).first()
             if loan_member:
+                loan_member.validate_active()
                 loan_member_serializer = LoanMemberSerializer(loan_member, data=loan_member_data, partial=True)
             else:
                 loan_member_serializer = LoanMemberSerializer(data=loan_member_data)

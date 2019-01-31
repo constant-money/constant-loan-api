@@ -64,6 +64,9 @@ class LoanMember(TimestampedModel):
     phone_verification_code = models.CharField(max_length=10, blank=True)
     phone_retry = models.IntegerField(default=10)
 
+    def __str__(self):
+        return '{}'.format(self.user_email)
+
 
 class LoanApplication(TimestampedModel):
     class Meta:

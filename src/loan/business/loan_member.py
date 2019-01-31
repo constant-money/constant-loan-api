@@ -1,9 +1,10 @@
 from django.db.models import F
 
 from common.business import generate_random_digit
-from loan.exceptions import InvalidVerificationException, AlreadyVerifiedException, ExceedLimitException
-from loan.models import LoanMember
-
+from loan.constants import LOAN_APPLICATION_STATUS
+from loan.exceptions import InvalidVerificationException, AlreadyVerifiedException, ExceedLimitException, \
+    AlreadyInAnotherApplicationException
+from loan.models import LoanMember, LoanMemberApplication
 
 # Extend class to do business of model
 from notification.constants import SMS_PURPOSE, LANGUAGE
@@ -38,3 +39,13 @@ class LoanMemberBusiness(LoanMember):
         self.phone_verification_code = generate_random_digit(6)
         self.phone_retry = F('phone_retry') - 1
         self.save()
+
+    def validate_active(self):
+        # Check if there is active member in an active application
+        if LoanMemberApplication.objects.filter(member=self, application__status__in=[
+            LOAN_APPLICATION_STATUS.created,
+            LOAN_APPLICATION_STATUS.pending,
+            LOAN_APPLICATION_STATUS.processing,
+            LOAN_APPLICATION_STATUS.approved,
+        ]).count():
+            raise AlreadyInAnotherApplicationException

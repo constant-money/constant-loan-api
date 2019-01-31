@@ -30,3 +30,9 @@ class InvalidStatusException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Invalid status'
     default_code = 'invalid_status'
+
+
+class AlreadyInAnotherApplicationException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Already in another application'
+    default_code = 'already_in_another_application'

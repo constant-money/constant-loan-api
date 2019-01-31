@@ -53,6 +53,7 @@ THIRD_PARTY_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'django_filters',
+    'tinymce',
 ]
 
 LOCAL_APPS = [
@@ -186,6 +187,10 @@ JWT_AUTH = {
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+TINYMCE_DEFAULT_CONFIG = {
+    'width': '80%',
+    'height': '300px'
+}
 
 # All of this is already happening by default!
 sentry_logging = LoggingIntegration(
@@ -219,5 +224,5 @@ SENDGRID = {
 }
 
 CONST_API = {
-    'URL': 'http://35.201.103.30/api'
+    'URL': 'http://35.244.181.30/api'
 }

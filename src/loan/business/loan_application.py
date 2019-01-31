@@ -78,6 +78,7 @@ class LoanApplicationBusiness(LoanApplication):
             loan_member_application = LoanMemberApplication.objects.get(application=application,
                                                                         member=loan_member_id)
             loan_member_application.status = LOAN_MEMBER_APPLICATION_STATUS.connected
+            loan_member_application.active = True
             loan_member_application.save()
 
             all_qs = LoanMemberApplication.objects.filter(application=application, main=False)
@@ -87,6 +88,7 @@ class LoanApplicationBusiness(LoanApplication):
             if all_qs.count() == connected_qs.count():
                 main = LoanMemberApplication.objects.get(application=application, main=True)
                 main.status = LOAN_MEMBER_APPLICATION_STATUS.connected
+                main.active = True
                 main.save()
                 application.status = LOAN_APPLICATION_STATUS.pending
                 application.save()
