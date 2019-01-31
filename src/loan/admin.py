@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from loan.models import LoanProgram, LoanMember, LoanApplication, LoanMemberApplication, Loan, LoanPayment, \
-    LoanMemberApplicationDataField
+    LoanMemberApplicationDataField, LoanTerm
 
 
 @admin.register(LoanProgram)
@@ -31,6 +31,13 @@ class LoanInline(admin.StackedInline):
     extra = 1
 
 
+class LoanTermInline(admin.StackedInline):
+    model = LoanTerm
+    list_display = ('total_amount', 'original_amount', 'interest_amount',
+                    'pay_date', 'paid_date', 'paid', 'paid_status')
+    extra = 1
+
+
 class LoanPaymentInline(admin.StackedInline):
     model = LoanPayment
     list_display = ('paid_amount', 'original_amount', 'interest_amount', 'status')
@@ -41,4 +48,7 @@ class LoanPaymentInline(admin.StackedInline):
 class LoanMemberApplicationAdmin(admin.ModelAdmin):
     list_display = ['application', 'member', 'main', 'status', 'active']
     search_fields = ['member__user_email', 'member__user_phone', ]
-    inlines = (LoanMemberApplicationDataFieldInline, LoanInline, LoanPaymentInline)
+    inlines = (LoanMemberApplicationDataFieldInline,
+               LoanInline,
+               LoanTermInline,
+               LoanPaymentInline)

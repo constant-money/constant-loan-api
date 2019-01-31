@@ -85,6 +85,9 @@ class LoanApplication(TimestampedModel):
     members = models.ManyToManyField(LoanMember, through='LoanMemberApplication', related_name='applications_of_member')
     note = models.TextField(null=True, blank=True)
 
+    def __str__(self):
+        return '{}'.format(self.program) if not self.members else self.members[0].user_email
+
 
 class LoanMemberApplication(models.Model):
     class Meta:
@@ -97,6 +100,9 @@ class LoanMemberApplication(models.Model):
     main = models.BooleanField(null=True, blank=True)
     status = models.CharField(max_length=50, choices=LOAN_MEMBER_APPLICATION_STATUS, null=True)
     active = models.BooleanField(default=False)
+
+    def __str__(self):
+        return '{}'.format(self.member.user_email)
 
 
 class LoanMemberApplicationDataField(models.Model):
