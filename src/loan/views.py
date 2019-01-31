@@ -14,6 +14,11 @@ from loan.serializers import LoanApplicationSerializer, LoanMemberApplicationSer
 from notification.constants import LANGUAGE
 
 
+class StartView(APIView):
+    def get(self, request, format=None):
+        return Response('API works')
+
+
 class SampleAuthView(APIView):
     permission_classes = (IsAuthenticated,)
 

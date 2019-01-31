@@ -11,9 +11,9 @@ export UNDERLINE='\033[4m'
 #===============================================================
 
 V=$(date "+%Y%m%d_%H%M%S")
-PROJECT="cash-prototype"
+PROJECT="constant-money"
 NAMESPACE=$1
-BACKEND_IMAGE="$NAMESPACE-backend-loan-service"
+BACKEND_IMAGE="$NAMESPACE-loan-backend-service"
 
 if [ $1 = "staging" ]
 then
@@ -34,7 +34,7 @@ docker build \
 docker tag gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber
 
 gcloud auth activate-service-account --key-file ./deployments/deploy.cred.json
-gcloud container clusters get-credentials service-cluster-1 --zone asia-southeast1-a --project cash-prototype
+gcloud container clusters get-credentials service-cluster-1 --zone asia-southeast1-a --project constant-money
 gcloud docker -- push gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber
 
 result=$(echo $?)
@@ -45,11 +45,11 @@ else
     echo "$OKGREEN gcloud docker -- push gcr.io/$PROJECT/$BACKEND_IMAGE:buildNumber $V $ENDC"
 fi
 
-kubectl --namespace=$NAMESPACE set image deployment/backend-loan-service backend-loan-service=gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber
+kubectl --namespace=$NAMESPACE set image deployment/loan-backend-service loan-backend-service=gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber
 
 result=$(echo $?)
 if [ $result != 0 ] ; then
-    echo "$FAIL failed kubectl --namespace=$NAMESPACE set image deployment/backend-loan-service backend-loan-service=gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber $ENDC";
+    echo "$FAIL failed kubectl --namespace=$NAMESPACE set image deployment/loan-backend-service loan-backend-service=gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber $ENDC";
     exit;
 else
     echo "$OKGREEN DEPLOY SUCESSFULL gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber $ENDC"
