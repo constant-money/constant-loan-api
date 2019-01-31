@@ -38,7 +38,7 @@ class LoanApplicationSerializer(serializers.ModelSerializer):
 
     def get_main_member(self, instance):
         member_app = LoanMemberApplication.objects.filter(application=instance,
-                                                          main=False).first()
+                                                          main=True).first()
 
         return LoanMemberApplicationSerializer(member_app).data
 
