@@ -1,5 +1,5 @@
 FROM python:3.7
-EXPOSE 8000
+EXPOSE 6669
 
 COPY src /app
 WORKDIR /app
@@ -12,4 +12,4 @@ WORKDIR /app/src
 
 ENV DJANGO_SETTINGS_MODULE="conf.settings.local"
 
-CMD exec gunicorn conf.wsgi:application --bind 0.0.0.0:8000 --workers 3
+CMD exec gunicorn conf.wsgi:application --bind 0.0.0.0:6669 --workers 3
