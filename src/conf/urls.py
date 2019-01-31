@@ -21,6 +21,7 @@ from django.urls import path, include
 from loan.views import StartView
 
 urlpatterns = [
+    path('', StartView.as_view()),
     path('loan-api/__admin/', admin.site.urls),
     path('loan-api/', StartView.as_view()),
     path('loan-api/', include('loan.urls')),
