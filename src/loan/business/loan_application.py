@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.db.models import Count, Q
 from rest_framework.exceptions import ValidationError
 
 from loan.constants import LOAN_APPLICATION_STATUS, LOAN_MEMBER_APPLICATION_STATUS

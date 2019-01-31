@@ -21,8 +21,8 @@ from django.urls import path, include
 from loan.views import StartView
 
 urlpatterns = [
-    path('__admin/', admin.site.urls),
-    path('', StartView.as_view()),
+    path('loan-api/__admin/', admin.site.urls),
+    path('loan-api/', StartView.as_view()),
     path('loan-api/', include('loan.urls')),
     path('loan-api/', include('loan_admin.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
