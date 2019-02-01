@@ -55,6 +55,9 @@ class LoanApplicationActionTests(APITestCase):
 
     def test_approve(self):
         loan_app = LoanApplicationFactory(status=LOAN_APPLICATION_STATUS.pending)
+        member = LoanMemberFactory()
+        LoanMemberApplicationFactory(application=loan_app, member=member, main=True)
+
         url = reverse('loan-admin:loanapplication-approve', args=[loan_app.pk])
         response = self.client.patch(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -62,6 +65,7 @@ class LoanApplicationActionTests(APITestCase):
 
     def test_reject(self):
         loan_app = LoanApplicationFactory(status=LOAN_APPLICATION_STATUS.pending)
+
         url = reverse('loan-admin:loanapplication-reject', args=[loan_app.pk])
         response = self.client.patch(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
