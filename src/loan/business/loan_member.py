@@ -30,13 +30,14 @@ class LoanMemberBusiness(LoanMember):
         if self.phone_retry == 0:
             raise ExceedLimitException
 
+        self.phone_verification_code = generate_random_digit(6)
+
         SmsNotification.send_sms_template(phone,
                                           SMS_PURPOSE.phone_verification,
                                           language,
                                           {'code': self.phone_verification_code})
 
         self.user_phone = phone
-        self.phone_verification_code = generate_random_digit(6)
         self.phone_retry = F('phone_retry') - 1
         self.save()
 
