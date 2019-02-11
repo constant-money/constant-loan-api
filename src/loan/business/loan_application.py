@@ -43,6 +43,13 @@ class LoanApplicationBusiness(LoanApplication):
         self.note = note
         self.save()
 
+    def close(self):
+        if self.status not in [LOAN_APPLICATION_STATUS.approved, ]:
+            raise InvalidStatusException
+
+        self.status = LOAN_APPLICATION_STATUS.closed
+        self.save()
+
     def send_connect_email(self, language=LANGUAGE.en):
         loan_members = LoanMember.objects\
             .filter(loan_member_members__main=False,

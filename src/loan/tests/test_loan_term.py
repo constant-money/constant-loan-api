@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 
 from common.business import get_now
 from common.test_utils import AuthenticationUtils
+from loan.constants import LOAN_APPLICATION_STATUS
 from loan.factories import LoanApplicationFactory, LoanMemberFactory, LoanMemberApplicationFactory, \
     LoanTermFactory
 
@@ -43,7 +44,7 @@ class LoanTermTests(APITestCase):
         self.auth_utils.user_login()
 
         member = LoanMemberFactory(user_id=1)
-        app = LoanApplicationFactory()
+        app = LoanApplicationFactory(status=LOAN_APPLICATION_STATUS.approved)
         mem_app = LoanMemberApplicationFactory(application=app, member=member, main=True)
         self.loan_term = LoanTermFactory(loan_applicant=mem_app, pay_date=get_now() + timedelta(days=2))
 

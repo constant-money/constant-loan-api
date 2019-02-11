@@ -76,7 +76,6 @@ class LoanApplicationView(APIView):
         if not request.data.get('main_member'):
             raise ValidationError
         if not request.data.get('members'):
-            print('Go here 2')
             raise ValidationError
 
         loan_member_app_serializers = self._extract_data_to_serializers(request)

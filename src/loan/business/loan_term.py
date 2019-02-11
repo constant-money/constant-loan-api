@@ -1,6 +1,7 @@
 from django.db import transaction
 
 from common.business import get_now
+from loan.business.loan_application import LoanApplicationBusiness
 from loan.constants import LOAN_TERM_STATUS
 from loan.exceptions import AlreadyPaidException
 from loan.models import LoanTerm, LoanPayment
@@ -36,3 +37,11 @@ class LoanTermBusiness(LoanTerm):
 
         self.payment = obj
         self.save()
+
+        # All paid, close application
+        all_term = LoanTerm.objects.filter(loan_applicant=self.loan_applicant).count()
+        paid_term = LoanTerm.objects.filter(loan_applicant=self.loan_applicant, paid=True).count()
+        if all_term == paid_term:
+            LoanApplicationBusiness.objects.get(id=self.loan_applicant.application.id).close()
+
+            # TODO Give credit point here
