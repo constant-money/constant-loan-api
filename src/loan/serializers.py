@@ -51,12 +51,19 @@ class LoanApplicationSerializer(serializers.ModelSerializer):
         return [LoanMemberApplicationSerializer(member_app).data for member_app in member_apps]
 
 
+class LoanTermNotificationSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoanTermNotification
+        exclude = ('loan_term', 'notification_note')
+
+
 class LoanTermSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoanTerm
         fields = '__all__'
 
     due_days = serializers.SerializerMethodField(source='get_due_days', read_only=True)
+    loan_term_notifications = LoanTermNotificationSimpleSerializer(many=True, read_only=True)
 
     def get_due_days(self, instance):
         return (get_now() - instance.pay_date).days

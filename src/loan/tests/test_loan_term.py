@@ -8,7 +8,7 @@ from common.business import get_now
 from common.test_utils import AuthenticationUtils
 from loan.constants import LOAN_APPLICATION_STATUS
 from loan.factories import LoanApplicationFactory, LoanMemberFactory, LoanMemberApplicationFactory, \
-    LoanTermFactory
+    LoanTermFactory, LoanTermNotificationFactory
 
 
 class ListLoanTermTests(APITestCase):
@@ -30,12 +30,15 @@ class ListLoanTermTests(APITestCase):
         member = LoanMemberFactory(user_id=1)
         app = LoanApplicationFactory()
         mem_app = LoanMemberApplicationFactory(application=app, member=member, main=True)
-        LoanTermFactory(loan_applicant=mem_app, pay_date=get_now() + timedelta(days=2))
+        loan_term = LoanTermFactory(loan_applicant=mem_app, pay_date=get_now() + timedelta(days=2))
+        LoanTermNotificationFactory(loan_term=loan_term)
+        LoanTermNotificationFactory(loan_term=loan_term)
 
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()['results']), 1)
+        print(response.json())
 
 
 class LoanTermTests(APITestCase):
