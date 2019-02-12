@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.db import transaction
 
 from common.business import get_now
+from constant_core.business import ConstantCoreBusiness
 from loan.business.loan_application import LoanApplicationBusiness
 from loan.constants import LOAN_TERM_STATUS
 from loan.exceptions import AlreadyPaidException
@@ -17,7 +19,8 @@ class LoanTermBusiness(LoanTerm):
         if self.paid:
             raise AlreadyPaidException
 
-        # TODO Take CONST from user and transfer to app account
+        ConstantCoreBusiness.transfer(self.loan_applicant.member.user_id,
+                                      settings.CONSTANT_USER_ID, self.total_amount)
 
         now = get_now()
         self.paid_date = now

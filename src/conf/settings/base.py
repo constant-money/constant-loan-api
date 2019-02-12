@@ -61,7 +61,8 @@ LOCAL_APPS = [
     'loan_admin',
     'loan_auth',
     'content',
-    'notification'
+    'notification',
+    'constant_core'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -226,3 +227,5 @@ SENDGRID = {
 CONST_API = {
     'URL': 'http://35.244.181.30/api'
 }
+
+CONSTANT_USER_ID = 17

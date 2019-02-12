@@ -9,7 +9,7 @@ client = Client(settings.TWILIO['API_SID'], settings.TWILIO['API_AUTH_TOKEN'])
 
 @raise_api_exception(ExternalAPIException)
 def send_sms(from_phone: str, to_phone: str, message: str):
-    client.messages.create(
+    return client.messages.create(
         from_=from_phone,
         body=message,
         to=to_phone

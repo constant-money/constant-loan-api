@@ -1,8 +1,12 @@
+from unittest.mock import MagicMock
+
+from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from common.test_utils import AuthenticationUtils
+from constant_core.business import ConstantCoreBusiness
 from loan.constants import LOAN_APPLICATION_STATUS, FIELD_TYPE
 from loan.factories import LoanApplicationFactory, LoanMemberFactory, LoanMemberApplicationFactory, \
     LoanMemberApplicationDataFieldFactory
@@ -57,11 +61,15 @@ class LoanApplicationActionTests(APITestCase):
         loan_app = LoanApplicationFactory(status=LOAN_APPLICATION_STATUS.pending)
         member = LoanMemberFactory()
         LoanMemberApplicationFactory(application=loan_app, member=member, main=True)
+        ConstantCoreBusiness.transfer = MagicMock(return_value=None)
 
         url = reverse('loan-admin:loanapplication-approve', args=[loan_app.pk])
         response = self.client.patch(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['status'], LOAN_APPLICATION_STATUS.approved)
+
+        ConstantCoreBusiness.transfer.assert_called_once_with(settings.CONSTANT_USER_ID,
+                                                              member.user_id, loan_app.loan_amount)
 
     def test_reject(self):
         loan_app = LoanApplicationFactory(status=LOAN_APPLICATION_STATUS.pending)

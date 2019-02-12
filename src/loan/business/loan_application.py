@@ -1,9 +1,11 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
 from common.business import get_now
+from constant_core.business import ConstantCoreBusiness
 from loan.constants import LOAN_APPLICATION_STATUS, LOAN_MEMBER_APPLICATION_STATUS
 from loan.exceptions import InvalidStatusException
 from loan.models import LoanApplication, LoanMember, LoanMemberApplication, Loan, LoanTerm
@@ -24,7 +26,11 @@ class LoanApplicationBusiness(LoanApplication):
 
         self.status = LOAN_APPLICATION_STATUS.approved
         self.save()
-        # TODO Transfer CONST
+
+        ConstantCoreBusiness.transfer(settings.CONSTANT_USER_ID,
+                                      self.loan_member_applications.filter(main=True).first()
+                                      .member.user_id, self.loan_amount)
+
         self.generate_loan()
 
     def reject(self, note=''):

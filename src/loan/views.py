@@ -37,6 +37,7 @@ class PhoneVerificationView(APIView):
             })
 
         return Response({
+            'user_phone': member.user_phone,
             'phone_verified': member.is_phone_verified()
         })
 
