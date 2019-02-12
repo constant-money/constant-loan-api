@@ -1,10 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from loan.resource import LoanApplicationViewSet, LoanTermViewSet
+from loan.resource import LoanApplicationViewSet, LoanTermViewSet, LoanProgramViewSet
 from loan.views import SampleAuthView, PhoneVerificationView, LoanApplicationView, LoanConnectView
 
 router = DefaultRouter()
+router.register('loan-programs', LoanProgramViewSet)
 router.register('loan-applications', LoanApplicationViewSet)
 router.register('loan-terms', LoanTermViewSet)
 

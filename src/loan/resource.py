@@ -2,13 +2,13 @@ from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
 
 from common.http import StandardPagination
 from loan.business.loan_application import LoanApplicationBusiness
 from loan.business.loan_term import LoanTermBusiness
-from loan.models import LoanTerm, LoanApplication
-from loan.serializers import LoanApplicationSerializer, LoanTermSerializer
+from loan.models import LoanTerm, LoanApplication, LoanProgram
+from loan.serializers import LoanApplicationSerializer, LoanTermSerializer, LoanProgramSerializer
 
 
 class LoanApplicationViewSet(mixins.RetrieveModelMixin,
@@ -65,3 +65,14 @@ class LoanTermViewSet(mixins.RetrieveModelMixin,
         loan_term.pay()
 
         return Response(serializer.data)
+
+
+class LoanProgramViewSet(ReadOnlyModelViewSet):
+    permission_classes = (IsAuthenticated, )
+
+    serializer_class = LoanProgramSerializer
+    queryset = LoanProgram.objects.none()
+
+    def get_queryset(self):
+        qs = LoanTerm.objects.filter(active=True)
+        return qs

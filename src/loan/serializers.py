@@ -2,7 +2,13 @@ from rest_framework import serializers
 
 from common.business import get_now
 from loan.models import LoanApplication, LoanMemberApplication, LoanMember, LoanMemberApplicationDataField, LoanTerm, \
-    LoanTermNotification
+    LoanTermNotification, LoanProgram
+
+
+class LoanProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoanProgram
+        fields = ('rate', 'min_term', 'max_term', 'cycle')
 
 
 class LoanMemberSerializer(serializers.ModelSerializer):
