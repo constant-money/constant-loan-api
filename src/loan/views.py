@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from loan.business.loan_application import LoanApplicationBusiness
 from loan.business.loan_member import LoanMemberBusiness
 from loan.constants import LOAN_MEMBER_APPLICATION_STATUS
+from loan.exceptions import InvalidEmailException, DuplicatedEmailInFormException
 from loan.models import LoanProgram
 from loan.serializers import LoanApplicationSerializer, LoanMemberApplicationSerializer, \
     LoanMemberApplicationDataFieldSerializer, LoanMemberSerializer
@@ -90,6 +91,7 @@ class LoanApplicationView(APIView):
         loan_app_members = request.data['members']
         loan_app_members.append(request.data['main_member'])
         loan_member_app_serializers = []
+        emails = []
         for loan_app_member in loan_app_members:
             data = {
                 'loan_member': None,
@@ -100,6 +102,16 @@ class LoanApplicationView(APIView):
             loan_member_data = loan_app_member.get('member')
             if not loan_member_data:
                 raise ValidationError
+            email = loan_member_data.get('user_email')
+            if email:
+                if not email.endswith('.edu'):
+                    raise InvalidEmailException
+                if email in emails:
+                    raise DuplicatedEmailInFormException
+                emails.append(email)
+            else:
+                raise InvalidEmailException
+
             loan_member = LoanMemberBusiness.objects.filter(user_email=loan_member_data.get('user_email')).first()
             if loan_member:
                 loan_member.validate_active()

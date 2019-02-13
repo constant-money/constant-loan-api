@@ -36,3 +36,15 @@ class AlreadyInAnotherApplicationException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Already in another application'
     default_code = 'already_in_another_application'
+
+
+class InvalidEmailException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Invalid email'
+    default_code = 'invalid_email'
+
+
+class DuplicatedEmailInFormException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Duplicated email in form'
+    default_code = 'duplicated_email'

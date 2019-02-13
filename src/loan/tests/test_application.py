@@ -45,7 +45,7 @@ class LoanApplicationTests(APITestCase):
             },
             'members': [{
                 'member': {
-                    'user_email': 'student@mail.edu',
+                    'user_email': 'student1@mail.edu',
                     'user_phone': '123456789',
                     'user_name': 'Student Name',
                 },
@@ -61,7 +61,6 @@ class LoanApplicationTests(APITestCase):
             }],
         }, format='json')
 
-        # print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
@@ -112,7 +111,7 @@ class LoanApplicationPhoneValidationTests(APITestCase):
             },
             'members': [{
                 'member': {
-                    'user_email': 'student@mail.edu',
+                    'user_email': 'student1@mail.edu',
                     'user_phone': '123456789',
                     'user_name': 'Student Name',
                 },
