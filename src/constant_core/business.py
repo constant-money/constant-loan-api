@@ -28,5 +28,6 @@ class ConstantCoreBusiness(object):
 
         Reserves.objects.create(
             user_id=from_user_id,
+            to_user_id=to_user_id,
             amount=int_amount,
         )

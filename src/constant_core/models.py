@@ -38,6 +38,7 @@ class Reserves(models.Model):
     ext_error = models.CharField(max_length=10, blank=True)
     ext_id = models.CharField(max_length=10, blank=True)
     ext_status = models.CharField(max_length=10, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = ConstantManager()
