@@ -15,7 +15,7 @@ class ConstantCoreBusiness(object):
         to_user = User.objects.get(id=to_user_id)
 
         # Convert to constant amount
-        int_amount = int(str(amount * Decimal(100)))
+        int_amount = int('{:.0f}'.format(amount * Decimal(100)))
 
         if from_user.constant_balance < amount:
             raise NotEnoughBalanceException
