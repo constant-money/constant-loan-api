@@ -11,6 +11,21 @@ from loan.models import LoanMemberApplication, LoanApplication
 from notification.provider.email import EmailNotification
 
 
+class ListLoanProgramTests(APITestCase):
+    def setUp(self):
+        self.auth_utils = AuthenticationUtils(self.client)
+        self.auth_utils.user_login()
+
+        LoanProgramFactory.create_batch(2)
+
+    def test_list(self):
+        url = reverse('loan:loanprogram-list')
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 2)
+
+
 class LoanApplicationTests(APITestCase):
     def setUp(self):
         self.auth_utils = AuthenticationUtils(self.client)

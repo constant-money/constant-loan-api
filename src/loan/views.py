@@ -104,7 +104,7 @@ class LoanApplicationView(APIView):
                 raise ValidationError
             email = loan_member_data.get('user_email')
             if email:
-                if not email.endswith('.edu'):
+                if not email.endswith('.edu') and not email.endswith('@grr.la'):
                     raise InvalidEmailException
                 if email in emails:
                     raise DuplicatedEmailInFormException
@@ -138,6 +138,10 @@ class LoanApplicationView(APIView):
     def _persistent_serializer(request, loan_app_serializer, loan_member_app_serializers):
         # Persistent
         program = LoanProgram.objects.first()
+        loan_term = loan_app_serializer.validated_data['term']
+        if program.min_term < loan_term < program.max_term:
+            raise ValidationError
+
         loan_app = loan_app_serializer.save(
             program=program,
             member_required=program.max_member,

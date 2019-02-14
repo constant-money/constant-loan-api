@@ -8,7 +8,7 @@ from loan.models import LoanApplication, LoanMemberApplication, LoanMember, Loan
 class LoanProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoanProgram
-        fields = ('rate', 'min_term', 'max_term', 'cycle')
+        fields = ('rate', 'min_term', 'max_term', 'cycle', 'min_loan_amount', 'max_loan_amount')
 
 
 class LoanMemberSerializer(serializers.ModelSerializer):

@@ -74,5 +74,5 @@ class LoanProgramViewSet(ReadOnlyModelViewSet):
     queryset = LoanProgram.objects.none()
 
     def get_queryset(self):
-        qs = LoanTerm.objects.filter(active=True)
+        qs = LoanProgram.objects.filter(active=True)
         return qs
