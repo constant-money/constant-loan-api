@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from loan.resource import LoanApplicationViewSet, LoanTermViewSet, LoanProgramViewSet
-from loan.views import SampleAuthView, PhoneVerificationView, LoanApplicationView, LoanConnectView
+from loan.views import SampleAuthView, PhoneVerificationView, LoanApplicationView, LoanConnectView, LoanTermReminderView
 
 router = DefaultRouter()
 router.register('loan-programs', LoanProgramViewSet)
@@ -15,6 +15,7 @@ patterns = ([
     path('phone-verification/', PhoneVerificationView.as_view(), name='phone-verification-view'),
     path('loan-application/', LoanApplicationView.as_view(), name='loan-application-view'),
     path('loan-connect/', LoanConnectView.as_view(), name='loan-connect-view'),
+    path('loan-term-reminder/', LoanTermReminderView.as_view(), name='loan-term-reminder-view'),
 ], 'loan')
 
 urlpatterns = [

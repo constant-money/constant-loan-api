@@ -1,3 +1,6 @@
+import logging
+from datetime import timedelta
+
 from django.db import transaction
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -5,11 +8,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from common.business import get_now
 from loan.business.loan_application import LoanApplicationBusiness
 from loan.business.loan_member import LoanMemberBusiness
+from loan.business.loan_term import LoanTermBusiness
 from loan.constants import LOAN_MEMBER_APPLICATION_STATUS
 from loan.exceptions import InvalidEmailException, DuplicatedEmailInFormException
-from loan.models import LoanProgram
+from loan.models import LoanProgram, LoanTerm
 from loan.serializers import LoanApplicationSerializer, LoanMemberApplicationSerializer, \
     LoanMemberApplicationDataFieldSerializer, LoanMemberSerializer
 from notification.constants import LANGUAGE
@@ -183,3 +188,18 @@ class LoanConnectView(APIView):
         LoanApplicationBusiness.connect(code)
 
         return Response()
+
+
+class LoanTermReminderView(APIView):
+    def post(self, request, format=None):
+        now = get_now() - timedelta(days=10)
+        # Get all
+        terms = LoanTermBusiness.objects.filter(pay_date__day=now.day,
+                                                pay_date__month=now.month,
+                                                pay_date__year=now.year)
+        for term in terms:
+            try:
+                term.send_email_reminder()
+                term.send_sms_reminder()
+            except Exception as ex:
+                logging.exception(ex)

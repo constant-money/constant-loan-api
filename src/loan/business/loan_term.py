@@ -10,6 +10,11 @@ from loan.models import LoanTerm, LoanPayment
 
 
 # Extend class to do business of model
+from notification.constants import EMAIL_PURPOSE, LANGUAGE, SMS_PURPOSE
+from notification.provider.email import EmailNotification
+from notification.provider.sms import SmsNotification
+
+
 class LoanTermBusiness(LoanTerm):
     class Meta:
         proxy = True
@@ -48,3 +53,16 @@ class LoanTermBusiness(LoanTerm):
             LoanApplicationBusiness.objects.get(id=self.loan_applicant.application.id).close()
 
             # TODO Give credit point here
+
+    def send_email_reminder(self, language: str = LANGUAGE.en):
+        EmailNotification.send_email_template(self.loan_applicant.member.user_email,
+                                              EMAIL_PURPOSE.term_reminder,
+                                              language,
+                                              {}
+                                              )
+
+    def send_sms_reminder(self, language: str = LANGUAGE.en):
+        SmsNotification.send_sms_template(self.loan_applicant.member.user_phone,
+                                          SMS_PURPOSE.term_reminder,
+                                          language,
+                                          {})
