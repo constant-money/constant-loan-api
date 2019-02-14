@@ -109,7 +109,8 @@ class LoanApplicationView(APIView):
                 raise ValidationError
             email = loan_member_data.get('user_email')
             if email:
-                if not email.endswith('.edu') and not email.endswith('@grr.la'):
+                email_tail = email.split('@')[-1]
+                if '.edu' not in email_tail and 'grr.la' not in email_tail:
                     raise InvalidEmailException
                 if email in emails:
                     raise DuplicatedEmailInFormException
