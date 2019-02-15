@@ -66,3 +66,16 @@ class LoanTermBusiness(LoanTerm):
                                           SMS_PURPOSE.term_reminder,
                                           language,
                                           {})
+
+    def send_email_not_enough_balance(self, language: str = LANGUAGE.en):
+        EmailNotification.send_email_template(self.loan_applicant.member.user_email,
+                                              EMAIL_PURPOSE.not_enough_balance,
+                                              language,
+                                              {}
+                                              )
+
+    def send_sms_not_enough_balance(self, language: str = LANGUAGE.en):
+        SmsNotification.send_sms_template(self.loan_applicant.member.user_phone,
+                                          SMS_PURPOSE.not_enough_balance,
+                                          language,
+                                          {})

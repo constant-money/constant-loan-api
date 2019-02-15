@@ -41,12 +41,15 @@ class LoanMemberBusiness(LoanMember):
         self.phone_retry = F('phone_retry') - 1
         self.save()
 
-    def validate_active(self):
-        # Check if there is active member in an active application
-        if LoanMemberApplication.objects.filter(member=self, application__status__in=[
+    def check_active(self):
+        return LoanMemberApplication.objects.filter(member=self, application__status__in=[
             LOAN_APPLICATION_STATUS.created,
             LOAN_APPLICATION_STATUS.pending,
             LOAN_APPLICATION_STATUS.processing,
             LOAN_APPLICATION_STATUS.approved,
-        ]).count():
+        ]).count() > 0
+
+    def validate_active(self):
+        # Check if there is active member in an active application
+        if self.check_active:
             raise AlreadyInAnotherApplicationException

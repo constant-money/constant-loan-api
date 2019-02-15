@@ -2,6 +2,7 @@ import logging
 from datetime import timedelta
 
 from django.db import transaction
+from django.db.models import Count, Q
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -9,10 +10,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from common.business import get_now
+from constant_core.exceptions import NotEnoughBalanceException
 from loan.business.loan_application import LoanApplicationBusiness
 from loan.business.loan_member import LoanMemberBusiness
+from loan.business.loan_member_application import LoanMemberApplicationBusiness
 from loan.business.loan_term import LoanTermBusiness
-from loan.constants import LOAN_MEMBER_APPLICATION_STATUS
+from loan.constants import LOAN_MEMBER_APPLICATION_STATUS, LOAN_APPLICATION_STATUS
 from loan.exceptions import InvalidEmailException, DuplicatedEmailInFormException
 from loan.models import LoanProgram
 from loan.serializers import LoanApplicationSerializer, LoanMemberApplicationSerializer, \
@@ -67,6 +70,17 @@ class PhoneVerificationView(APIView):
         return Response(
             True
         )
+
+
+class LoanApplicationCheckView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        member = LoanMemberBusiness.objects.filter(user_email=request.user.user_id).first()
+
+        return Response({
+            'can_submit_form': member.check_active()
+        })
 
 
 class LoanApplicationView(APIView):
@@ -188,12 +202,23 @@ class LoanConnectView(APIView):
 
         LoanApplicationBusiness.connect(code)
 
-        return Response()
+        return Response(True)
+
+
+class LoanDisconnectView(APIView):
+    def get(self, request, format=None):
+        code = request.query_params.get('code')
+        if not code:
+            raise ValidationError
+
+        LoanApplicationBusiness.connection_reject(code)
+
+        return Response(True)
 
 
 class LoanTermReminderView(APIView):
     def post(self, request, format=None):
-        now = get_now() - timedelta(days=10)
+        now = get_now() + timedelta(days=10)
         # Get all
         terms = LoanTermBusiness.objects.filter(pay_date__day=now.day,
                                                 pay_date__month=now.month,
@@ -204,3 +229,65 @@ class LoanTermReminderView(APIView):
                 term.send_sms_reminder()
             except Exception as ex:
                 logging.exception(ex)
+
+
+class LoanTermAutoPayView(APIView):
+    def post(self, request, format=None):
+        now = get_now()
+        # Get all not pay yet
+        terms = LoanTermBusiness.objects.filter(pay_date__day=now.day,
+                                                pay_date__month=now.month,
+                                                pay_date__year=now.year,
+                                                paid=False)
+        for term in terms:
+            try:
+                term.pay()
+            except NotEnoughBalanceException:
+                try:
+                    term.send_email_not_enough_balance()
+                    term.send_sms_not_enough_balance()
+                except Exception as ex:
+                    logging.exception(ex)
+            except Exception as ex:
+                logging.exception(ex)
+
+
+class LoanApplicationConnectionReminderView(APIView):
+    def post(self, request, format=None):
+        now = get_now() - timedelta(days=3)
+        connecting_members = LoanMemberApplicationBusiness.objects.filter(
+            status=LOAN_MEMBER_APPLICATION_STATUS.connecting,
+            application__created_at__day=now.day,
+            application__created_at__month=now.month,
+            application__created_at__year=now.year,
+        )
+        for member in connecting_members:
+            try:
+                member.send_email_connection_reminder()
+                member.send_sms_connection_reminder()
+            except Exception as ex:
+                logging.exception(ex)
+
+
+class LoanApplicationExpiredView(APIView):
+    def post(self, request, format=None):
+        now = get_now() - timedelta(days=7)
+        connected_member_condition = Q(loan_member_applications__main=False) & \
+            Q(loan_member_applications__status=LOAN_MEMBER_APPLICATION_STATUS.connected)
+        ref_member_condition = Q(loan_member_applications__main=False)
+        connected_member_count = Count('loan_member_applications',
+                                       filter=connected_member_condition)
+        ref_member_count = Count('loan_member_applications',
+                                 filter=ref_member_condition)
+
+        applications = LoanApplicationBusiness.objects\
+            .filter(status=LOAN_APPLICATION_STATUS.created,
+                    created_at__day=now.day,
+                    created_at__month=now.month,
+                    created_at__year=now.year)\
+            .annotate(connected_member_count=connected_member_count,
+                      ref_member_count=ref_member_count)
+
+        for application in applications:
+            if application.connected_member_count < application.ref_member_count:
+                application.reject()

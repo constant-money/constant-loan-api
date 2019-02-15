@@ -245,3 +245,38 @@ class LoanApplicationConnectTests(APITestCase):
         self.assertEqual(test_member2.status, LOAN_MEMBER_APPLICATION_STATUS.connected)
         test_member3 = LoanMemberApplication.objects.get(application=self.app.id, member=self.member3.id)
         self.assertEqual(test_member3.status, LOAN_MEMBER_APPLICATION_STATUS.connected)
+
+
+class LoanApplicationDisconnectTests(APITestCase):
+    def setUp(self):
+        self.member1 = LoanMemberFactory(user_id=1)
+        self.member2 = LoanMemberFactory(user_id=2)
+        self.member3 = LoanMemberFactory(user_id=3)
+
+        self.app = LoanApplicationFactory(status=LOAN_APPLICATION_STATUS.created)
+        LoanMemberApplicationFactory(application=self.app, member=self.member1, main=True,
+                                     status=LOAN_MEMBER_APPLICATION_STATUS.connecting)
+        LoanMemberApplicationFactory(application=self.app, member=self.member2, main=False,
+                                     status=LOAN_MEMBER_APPLICATION_STATUS.connecting)
+        LoanMemberApplicationFactory(application=self.app, member=self.member3, main=False,
+                                     status=LOAN_MEMBER_APPLICATION_STATUS.connecting)
+
+        self.url = reverse('loan:loan-disconnect-view')
+
+    def test_disconnect(self):
+        response = self.client.get(self.url, data={
+            'code': '{}_{}_{}'.format(
+                self.app.created_at.timestamp(),
+                self.app.id,
+                self.member2.id,
+            )}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        test_app = LoanApplication.objects.get(id=self.app.id)
+        self.assertEqual(test_app.status, LOAN_APPLICATION_STATUS.rejected)
+        test_member1 = LoanMemberApplication.objects.get(application=self.app.id, member=self.member1.id)
+        self.assertEqual(test_member1.status, LOAN_MEMBER_APPLICATION_STATUS.disconnected)
+        test_member2 = LoanMemberApplication.objects.get(application=self.app.id, member=self.member2.id)
+        self.assertEqual(test_member2.status, LOAN_MEMBER_APPLICATION_STATUS.disconnected)
+        test_member3 = LoanMemberApplication.objects.get(application=self.app.id, member=self.member3.id)
+        self.assertEqual(test_member3.status, LOAN_MEMBER_APPLICATION_STATUS.connecting)

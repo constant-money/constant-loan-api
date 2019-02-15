@@ -93,20 +93,50 @@ class LoanApplicationBusiness(LoanApplication):
         else:
             loan_member_application = LoanMemberApplication.objects.get(application=application,
                                                                         member=loan_member_id)
-            loan_member_application.status = LOAN_MEMBER_APPLICATION_STATUS.connected
-            loan_member_application.active = True
-            loan_member_application.save()
+            if loan_member_application.status == LOAN_MEMBER_APPLICATION_STATUS.connecting:
+                loan_member_application.status = LOAN_MEMBER_APPLICATION_STATUS.connected
+                loan_member_application.active = True
+                loan_member_application.save()
 
-            all_qs = LoanMemberApplication.objects.filter(application=application, main=False)
-            connected_qs = all_qs.filter(status=LOAN_MEMBER_APPLICATION_STATUS.connected)
+                all_qs = LoanMemberApplication.objects.filter(application=application, main=False)
+                connected_qs = all_qs.filter(status=LOAN_MEMBER_APPLICATION_STATUS.connected)
 
-            # All connected
-            if all_qs.count() == connected_qs.count():
+                # All connected
+                if all_qs.count() == connected_qs.count():
+                    main = LoanMemberApplication.objects.get(application=application, main=True)
+                    main.status = LOAN_MEMBER_APPLICATION_STATUS.connected
+                    main.active = True
+                    main.save()
+                    application.status = LOAN_APPLICATION_STATUS.pending
+                    application.save()
+
+    @staticmethod
+    @transaction.atomic
+    def connection_reject(code):
+        parts = code.split('_')
+        if len(parts) < 3:
+            raise ValidationError
+
+        created_at = parts[0]
+        application_id = parts[1]
+        loan_member_id = parts[2]
+
+        application = LoanApplication.objects.get(id=application_id)
+        if str(application.created_at.timestamp()) != created_at:
+            raise ValidationError
+        else:
+            loan_member_application = LoanMemberApplication.objects.get(application=application,
+                                                                        member=loan_member_id)
+            if loan_member_application.status == LOAN_MEMBER_APPLICATION_STATUS.connecting:
+                loan_member_application.status = LOAN_MEMBER_APPLICATION_STATUS.disconnected
+                loan_member_application.active = False
+                loan_member_application.save()
+
                 main = LoanMemberApplication.objects.get(application=application, main=True)
-                main.status = LOAN_MEMBER_APPLICATION_STATUS.connected
-                main.active = True
+                main.status = LOAN_MEMBER_APPLICATION_STATUS.disconnected
+                main.active = False
                 main.save()
-                application.status = LOAN_APPLICATION_STATUS.pending
+                application.status = LOAN_APPLICATION_STATUS.rejected
                 application.save()
 
     def generate_loan(self):
