@@ -14,7 +14,7 @@ from loan.business.loan_member import LoanMemberBusiness
 from loan.business.loan_term import LoanTermBusiness
 from loan.constants import LOAN_MEMBER_APPLICATION_STATUS
 from loan.exceptions import InvalidEmailException, DuplicatedEmailInFormException
-from loan.models import LoanProgram, LoanTerm
+from loan.models import LoanProgram
 from loan.serializers import LoanApplicationSerializer, LoanMemberApplicationSerializer, \
     LoanMemberApplicationDataFieldSerializer, LoanMemberSerializer
 from notification.constants import LANGUAGE
