@@ -77,9 +77,12 @@ class LoanApplicationCheckView(APIView):
 
     def get(self, request, format=None):
         member = LoanMemberBusiness.objects.filter(user_email=request.user.user_id).first()
+        can_submit_form = False
+        if member:
+            can_submit_form = not member.check_active()
 
         return Response({
-            'can_submit_form': not member.check_active()
+            'can_submit_form': can_submit_form
         })
 
 
