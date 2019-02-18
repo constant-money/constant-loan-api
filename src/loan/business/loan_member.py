@@ -51,5 +51,5 @@ class LoanMemberBusiness(LoanMember):
 
     def validate_active(self):
         # Check if there is active member in an active application
-        if self.check_active:
+        if self.check_active():
             raise AlreadyInAnotherApplicationException
