@@ -228,4 +228,4 @@ CONST_API = {
     'URL': 'http://35.244.181.30/api'
 }
 
-CONSTANT_USER_ID = 17
+CONSTANT_USER_ID = 232
