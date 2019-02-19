@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 
 from django.conf import settings
 from django.db import transaction
@@ -155,7 +156,7 @@ class LoanApplicationBusiness(LoanApplication):
         )
 
         original_amount = self.loan_amount / self.cycle
-        interest_amount = original_amount * self.rate
+        interest_amount = original_amount * self.rate / Decimal(100)
         total_amount = original_amount + interest_amount
         for i in range(1, self.cycle + 1):
             LoanTerm.objects.create(
