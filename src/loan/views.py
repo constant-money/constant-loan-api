@@ -111,7 +111,7 @@ class LoanApplicationView(APIView):
     @transaction.atomic
     def _extract_data_to_serializers(request):
         loan_app_members = request.data['members']
-        loan_app_members.prepend(request.data['main_member'])
+        loan_app_members.insert(0, request.data['main_member'])
         loan_member_app_serializers = []
         emails = []
         for loan_app_member in loan_app_members:
